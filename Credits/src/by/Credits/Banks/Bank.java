@@ -28,12 +28,23 @@ public class Bank {
         return Credits.size();
     }
 
-    public void GetCreditByNumber(int number){
+    public ArrayList<Credit> getCredits() {
+        return Credits;
+    }
+
+    // делает посик кредита в банке, если нет нужного кредита возвращает null
+    public Credit FindCreditByNumber(int number){
+        Credit crdt=null;
         for (int i = 0; i < Credits.size(); i++) {
             if(Credits.get(i).getNumber()==number){
-                System.out.println(Credits.get(i));
+                crdt = Credits.get(i);
             }
         }
+        return crdt;
+    }
+
+    public String getName() {
+        return Name;
     }
 
     @Override

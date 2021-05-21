@@ -2,8 +2,11 @@ package by.Credits.Banks;
 
 public class Credit {
 
-    public static short CountCredit=0; // номер кредита абсолютный
+
+    private static short CountCredit=0; // номер кредита абсолютный
     private TypesCredit TypeCredet;     // тип кредита (на что)
+
+
     private int Time;                   // на какое время
     private int PricePerMonth;          // платеж в месяц
     private short Number;               // номер конкретного кредита
@@ -19,6 +22,32 @@ public class Credit {
 
     public short getNumber() {
         return Number;
+    }
+
+    public int getTime() {
+        return Time;
+    }
+
+    public static short getCountCredit() {
+        return CountCredit;
+    }
+
+    // метод для совершения одного платежа
+    public void OnePayment(){
+        Time--;
+    }
+
+    public int getPricePerMonth() {
+        return PricePerMonth;
+    }
+
+    public TypesCredit getTypeCredet() {
+        return TypeCredet;
+    }
+
+    // метод для погашения кредита
+    public void FullPricePayment(){
+        Time=0;
     }
 
     @Override // переопределяем базовый метод "toString()" для красивого вывода

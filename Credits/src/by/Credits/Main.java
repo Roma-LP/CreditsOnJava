@@ -12,13 +12,13 @@ public class Main {
     public static void main(String[] args) {
 
 
-        Credit pr1 = new Credit(TypesCredit.HOUSE,3,500);
-        Credit pr2 = new Credit(TypesCredit.CAR,4,7860);
-        Credit pr3 = new Credit(TypesCredit.OTHER,18,193);
-        Credit pr4 = new Credit(TypesCredit.EDUCATION,10,193);
-        Credit pr5 = new Credit(TypesCredit.MOBILEPHONE,15,56);
-        Credit pr6 = new Credit(TypesCredit.HOUSE,22,157);
-        Credit pr7 = new Credit(TypesCredit.CAR,17,317);
+        Credit pr1 = new Credit(TypesCredit.HOUSE,2,500);
+        Credit pr2 = new Credit(TypesCredit.CAR,1,7860);
+        Credit pr3 = new Credit(TypesCredit.OTHER,2,193);
+        Credit pr4 = new Credit(TypesCredit.EDUCATION,2,193);
+        Credit pr5 = new Credit(TypesCredit.MOBILEPHONE,2,56);
+        Credit pr6 = new Credit(TypesCredit.HOUSE,1,157);
+        Credit pr7 = new Credit(TypesCredit.CAR,1,317);
         //PrintData(pr1,pr2,pr3,pr4,pr5);
         //System.out.println();
 
@@ -27,7 +27,7 @@ public class Main {
         Bank BLR = new Bank("BLR",pr5,pr6);
        // BPS.PrintData();
         USA.AddCredits(new Credit(TypesCredit.MOBILEPHONE,1,1),
-                       new Credit(TypesCredit.CAR,13,493) );
+                       new Credit(TypesCredit.CAR,2,493) );
         //System.out.println();
         //BPS.PrintData();
 
@@ -37,7 +37,7 @@ public class Main {
 
 
     }
-    // статический обобщенный (Generics) метод с переменным числом аргументов для вывода (использую для проверки)
+    // статический обобщенный (Generics) метод с переменным числом аргументов для вывода (используется для проверки)
     public static <T> void PrintData(T...data){
         for(int i = 0; i < data.length; i++) {
             System.out.println(data[i]);
