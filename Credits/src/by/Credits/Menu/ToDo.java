@@ -3,10 +3,7 @@ package by.Credits.Menu;
 import by.Credits.Banks.Bank;
 import by.Credits.Banks.Credit;
 import by.Credits.Banks.TypesCredit;
-import by.Credits.Main;
-import org.w3c.dom.ls.LSOutput;
 
-import javax.lang.model.element.Name;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -17,11 +14,11 @@ public class ToDo {
 
     private static short Choice;                // выбор действия
     private static ArrayList<Bank> Banks;       // копия банков со всеми кредитами
+    private static ArrayList<Bank> ResultBanks; // банки для результата поиска
     private static ArrayList<Bank> MyTotalCredits = new ArrayList<Bank>();      // наши выбранные кредиты в банках, сразу её создаем
 
     public static void Start(Bank...banks){
         Banks = new ArrayList<Bank>(Arrays.stream(banks).toList());
-        //Banks.forEach(i-> System.out.println(i));
         do{
             Menu();
             Choice = InputNumber(5);
@@ -67,10 +64,13 @@ public class ToDo {
         System.out.println("\nВыберите действие:\n" +
                 "1 - Показать кредиты НИЖЕ определенной цены в месяц\n" +
                 "2 - Показать кредиты ВЫШЕ определенной цены в месяц\n" +
-                "3 - Показать кредиты какого-нибудь банка\n" +
-                "4 - Показать кредиты по машине\n" +
-                "5 - Показать кредиты по квартире\n" +
-                "6 - Показать кредиты по образованию\n" +
+                "3 - Показать кредиты РАВНОЙ определенной цены в месяц\n" +
+                "4 - Показать кредиты какого-нибудь банка\n" +
+                "5 - Показать кредиты по машине\n" +
+                "6 - Показать кредиты по квартире\n" +
+                "7 - Показать кредиты по образованию\n" +
+                "8 - Показать кредиты по телефону\n" +
+                "9 - Показать кредиты по другому\n" +
                 "0 - Выход");
     }
 
@@ -101,7 +101,7 @@ public class ToDo {
         System.out.println( "good");
         //System.out.println(GetCreditByNumber(Number));
         //System.out.println(GetNameBankbyCreditNumber(Number));
-        AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+        AddBankWithCreditNumber(Number, GetNameBankByCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
     }
 
     // делает посик кредита по всем банкам, пока не найдёт нужный кредит
@@ -115,9 +115,20 @@ public class ToDo {
         }
         return crd;
     }
+    // делает тоже самое, то из банка ResultBanks
+    private static Credit GetCreditByNumberFromResultBank(int Number){
+        Credit crd=null;
+        for (int i = 0; i < ResultBanks.size(); i++) {
+            if(ResultBanks.get(i).FindCreditByNumber(Number)==null){  // ищем нужный кредит по номеру
+                continue;
+            }
+            else crd = ResultBanks.get(i).FindCreditByNumber(Number);
+        }
+        return crd;
+    }
 
     // делает посик имя банка по номеру кредита, пока не найдёт это имя банка
-    private static String GetNameBankbyCreditNumber(int Number){
+    private static String GetNameBankByCreditNumber(int Number){
         String name=null;
         for (int i = 0; i < Banks.size(); i++) {
             if(Banks.get(i).FindCreditByNumber(Number)==null){
@@ -136,12 +147,10 @@ public class ToDo {
         else {
             for (int i = 0; i < MyTotalCredits.size(); i++) {  // если уже есть такой банк, то добовляем в его список новый кредит
                 if(MyTotalCredits.get(i).getName().equals(name)){  // сравниваем на имена банков
-                    System.out.println("est takoi");
                     MyTotalCredits.get(i).AddCredits(GetCreditByNumber(number));
                     return;  // добавляем к нашему банку и выходим принудительно из метода
                 }
             }
-            System.out.println("no");
             MyTotalCredits.add(new Bank(name,GetCreditByNumber(number)));  // создаём новый банк и его кредит
         }
     }
@@ -166,11 +175,9 @@ public class ToDo {
         outterLoop: while (true) {  // используем метку для выхода из бесконечного цикла
             for (int i = 0; i < MyTotalCredits.size(); i++) {
                 if (MyTotalCredits.get(i).FindCreditByNumber(Number) == null) {
-                    System.out.println("bad");
                     continue;
                 }
                 else{
-                    System.out.println("good");
                     switch (TP){
                         case OnePayment:{
                             MyTotalCredits.get(i).FindCreditByNumber(Number).OnePayment();
@@ -215,119 +222,61 @@ public class ToDo {
     }
 
     private static void FindCredit(){
+        ResultBanks = new ArrayList<Bank>();  // создаём коллекцию для результатов, тем самым очищая её
         boolean flagtocontinue=false;  // флаг для проверки результата поиска
         FindMenu();
-        short vibor = InputNumber(6);
+        short vibor = InputNumber(9);
         switch (vibor){
 
             case 1:{
-                System.out.print("Введите цену:  ");
-                short price = InputNumber();
-                for (int i = 0; i < Banks.size(); i++) {
-                    for (int j = 0; j < Banks.get(i).getCredits().size(); j++) {
-                        if(Banks.get(i).getCredits().get(j).getPricePerMonth()<price){  // выводим все кредиты НИЖЕ нужной цены
-                            System.out.print(Banks.get(i).getCredits().get(j));
-                            flagtocontinue = true;
-                        }
-                    }
-                }
-                if(!flagtocontinue) {
-                    System.out.println("Таких нет"); return; }  // если поиск ничего не дал, то выходим
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                ViewPricePerMonth(TypeArithmeticSign.Less);
                 break;
             }
 
             case 2:{
-                System.out.print("Введите цену:  ");
-                short price = InputNumber();
-                for (int i = 0; i < Banks.size(); i++) {
-                    for (int j = 0; j < Banks.get(i).getCredits().size(); j++) {
-                        if(Banks.get(i).getCredits().get(j).getPricePerMonth()>price){  // // выводим все кредиты ВЫШЕ нужной цены
-                            System.out.print(Banks.get(i).getCredits().get(j));
-                            flagtocontinue = true;
-                        }
-                    }
-                }
-                if(!flagtocontinue) {
-                    System.out.println("Таких нет"); return; }  // если поиск ничего не дал, то выходим
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                ViewPricePerMonth(TypeArithmeticSign.More);
                 break;
             }
 
             case 3:{
-                for (int i = 0; i < Banks.size(); i++) {
-                    System.out.println(i +" - "+Banks.get(i).getName());
-                }
-                System.out.print("Введите номер банка:  ");
-                short bank = InputNumber(Banks.size()-1);
-                for (int i=0;i<Banks.get(bank).getCredits().size();i++){
-                    System.out.print(Banks.get(bank).getCredits().get(i));
-                }
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                ViewPricePerMonth(TypeArithmeticSign.Equal);
                 break;
-
             }
 
             case 4:{
                 for (int i = 0; i < Banks.size(); i++) {
-                    for (int j = 0; j < Banks.get(i).getCredits().size(); j++) {
-                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.CAR){  // // выводим все кредиты ВЫШЕ нужной цены
-                            System.out.print(Banks.get(i).getCredits().get(j));
-                            flagtocontinue = true;
-                        }
-                    }
+                    System.out.println(i +" - "+Banks.get(i).getName());  // выводим имеющиеся банки
                 }
-                if(!flagtocontinue) {
-                    System.out.println("Таких нет"); return; }  // если поиск ничего не дал, то выходим
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                System.out.print("Введите номер банка:  ");
+                short bank = InputNumber(Banks.size()-1);  // выбираем номер банка в котором хотим посмотреть кредиты
+                for (short i=0;i<Banks.get(bank).getCredits().size();i++){  // начинаем выводить все кредиты выбранного банка
+                    WriteToResultBank(bank,i);  // записываем в ResultBanks банк и его кредиты
+                }
                 break;
             }
 
             case 5:{
-                for (int i = 0; i < Banks.size(); i++) {
-                    for (int j = 0; j < Banks.get(i).getCredits().size(); j++) {
-                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.HOUSE){  // // выводим все кредиты ВЫШЕ нужной цены
-                            System.out.print(Banks.get(i).getCredits().get(j));
-                            flagtocontinue = true;
-                        }
-                    }
-                }
-                if(!flagtocontinue) {
-                    System.out.println("Таких нет"); return; }  // если поиск ничего не дал, то выходим
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                ViewPriceTypesCredit(TypesCredit.CAR);
                 break;
             }
 
             case 6:{
-                for (int i = 0; i < Banks.size(); i++) {
-                    for (int j = 0; j < Banks.get(i).getCredits().size(); j++) {
-                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.EDUCATION){  // // выводим все кредиты ВЫШЕ нужной цены
-                            System.out.print(Banks.get(i).getCredits().get(j));
-                            flagtocontinue = true;
-                        }
-                    }
-                }
-                if(!flagtocontinue) {
-                    System.out.println("Таких нет"); return; }  // если поиск ничего не дал, то выходим
-                int Number;       // для хранения выбранного номера кредита
-                System.out.println("\nВыберите номер кредита (значение Number):");
-                Number = InputNumber(Credit.getCountCredit());   // даеём ввести число сколько максимум есть кредитов во всех банках
-                AddBankWithCreditNumber(Number,GetNameBankbyCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
+                ViewPriceTypesCredit(TypesCredit.HOUSE);
+                break;
+            }
+
+            case 7:{
+                ViewPriceTypesCredit(TypesCredit.EDUCATION);
+                break;
+            }
+
+            case 8:{
+                ViewPriceTypesCredit(TypesCredit.MOBILEPHONE);
+                break;
+            }
+
+            case 9:{
+                ViewPriceTypesCredit(TypesCredit.OTHER);
                 break;
             }
 
@@ -336,6 +285,112 @@ public class ToDo {
                 return;
             }
         }
+        if(ResultBanks==null || ResultBanks.size()==0){
+            System.out.println("naniiii");
+        }
+        else{
+            ResultBanks.forEach(i-> System.out.println(i));
+        }
+        AddCreditFromResult();
+    }
+
+    private static void ViewPricePerMonth(TypeArithmeticSign TAS){
+        System.out.print("Введите цену:  ");
+        short price = InputNumber();
+        for (short i = 0; i < Banks.size(); i++) {
+            for (short j = 0; j < Banks.get(i).getCredits().size(); j++) {
+                switch (TAS){
+                    case Less: {
+                        if (Banks.get(i).getCredits().get(j).getPricePerMonth() < price) {  // выводим все кредиты НИЖЕ нужной цены
+                            //System.out.print(Banks.get(i).getCredits().get(j));
+                            WriteToResultBank(i,j);
+
+                        }
+                        break;
+                    }
+                    case More: {
+                        if (Banks.get(i).getCredits().get(j).getPricePerMonth() > price) {  // выводим все кредиты ВЫШЕ нужной цены
+                            //System.out.print(Banks.get(i).getCredits().get(j));
+                            WriteToResultBank(i,j);
+                        }
+                        break;
+                    }
+                    case Equal: {
+                        if (Banks.get(i).getCredits().get(j).getPricePerMonth() == price) {  // выводим все кредиты НИЖЕ нужной цены
+                            //System.out.print(Banks.get(i).getCredits().get(j));
+                            WriteToResultBank(i,j);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void ViewPriceTypesCredit(TypesCredit TC) {
+        for (short i = 0; i < Banks.size(); i++) {
+            for (short j = 0; j < Banks.get(i).getCredits().size(); j++) {
+                switch (TC){
+                    case CAR:{
+                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.CAR){ // выбираем все кредиты по машине
+                            WriteToResultBank(i,j); // записываем в ResultBanks банк и его кредиты по машине
+                        }
+                        break;
+                    }
+                    case EDUCATION:{
+                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.EDUCATION){ // выбираем все кредиты по образованию
+                            WriteToResultBank(i,j); // записываем в ResultBanks банк и его кредиты по образованию
+                        }
+                        break;
+                    }
+                    case MOBILEPHONE:{
+                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.MOBILEPHONE){ // выбираем все кредиты по телефону
+                            WriteToResultBank(i,j); // записываем в ResultBanks банк и его кредиты по телефону
+                        }
+                        break;
+                    }
+                    case HOUSE:{
+                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.HOUSE){ // выбираем все кредиты по дому
+                            WriteToResultBank(i,j); // записываем в ResultBanks банк и его кредиты по дому
+                        }
+                        break;
+                    }
+                    case OTHER:{
+                        if(Banks.get(i).getCredits().get(j).getTypeCredet()== TypesCredit.OTHER){ // выбираем все кредиты по другому
+                            WriteToResultBank(i,j); // записываем в ResultBanks банк и его кредиты по другому
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void WriteToResultBank(short bankIndex, short creditIndex){
+        if(ResultBanks.size()==0){ // если ещё результат пуст, то добавляем банк с его кредитом
+            ResultBanks.add( new Bank( Banks.get(bankIndex).getName(),  // создаём новый банк, по имени банка
+                                       Banks.get(bankIndex).getCredits().get(creditIndex)) );  // и его кредита через индексы
+        }
+        else {
+            for (int i = 0; i < ResultBanks.size(); i++) {  // если уже есть такой банк, то добовляем в его список новый кредит
+                if(ResultBanks.get(i).getName().equals(Banks.get(bankIndex).getName())){  // сравниваем на имена банков
+                    ResultBanks.get(i).AddCredits(Banks.get(bankIndex).getCredits().get(creditIndex));
+                    return;  // добавляем к нашему банку и выходим принудительно из метода
+                }
+            }
+            // если нет ещё такого банка, создаём новый банк и его кредит
+            ResultBanks.add( new Bank( Banks.get(bankIndex).getName(),  // создаём новый банк, по имени банка
+                    Banks.get(bankIndex).getCredits().get(creditIndex)) );  // и его кредита через индексы
+        }
+    }
+
+    private static void AddCreditFromResult(){
+        int Number;       // для хранения выбранного номера кредита из ResultBank
+        do {
+            System.out.println("\nВыберите номер кредита (значение Number):");
+            Number = InputNumber();   // даеём ввести число сколько максимум есть кредитов во всех банках
+        }while (GetCreditByNumberFromResultBank(Number)==null);
+        AddBankWithCreditNumber(Number, GetNameBankByCreditNumber(Number)); // добавляем еаш выбранный кредит в наш список
     }
 }
 
